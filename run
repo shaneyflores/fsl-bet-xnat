@@ -1,0 +1,27 @@
+#!/bin/bash
+
+## instantiate conda base env and source fsl
+source /opt/conda/bin/activate base
+source $FSLDIR/etc/fslconf/fsl.sh
+
+die(){
+    echo >&2 "$@"
+    exit -1
+}
+
+## run FSL BET using user provided arguments
+input_dir=${1}
+output_dir=${2}
+input_image=${3}
+other_flags=${4}
+
+if [[ $input_image == *.nii]] || [[ $input_image == *.nii.gz ]]; then ## test if valid NIFTI has be selected as input
+    
+    mkdir ${output_dir}/extract
+
+    ## call BET
+    bet ${input_dir}/${input_image} ${output_dir}/extract/${input_image%.nii*}_brain ${other_flags} || die "[ERROR]: bet ${input_dir}/${input_image} ${output_dir}/extract/${input_image%.nii*}_brain ${other_flags} failed"
+
+else ## no valid NIFTI found
+    die "[ERROR]: Appropriate NIFTI file not selected as input"
+fi
